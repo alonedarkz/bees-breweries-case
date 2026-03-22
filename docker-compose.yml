@@ -1,0 +1,8 @@
+services:
+  spark-app:
+    build: .
+    container_name: bees-spark-app
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: python -m app.jobs.hello_spark
