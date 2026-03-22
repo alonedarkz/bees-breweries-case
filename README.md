@@ -2,6 +2,16 @@
 
 Projeto em Python + PySpark para consumir a API Open Brewery DB e persistir os dados em uma arquitetura medallion com camadas bronze, silver e gold.
 
+## Como esta solucao atende o case
+
+- API: consome a Open Brewery DB com paginacao e retry simples
+- Orquestracao: usa Luigi com scheduler centralizado, retry de task e execucao batch
+- Linguagem: Python + PySpark
+- Testes: suite unitária para cliente da API e regras de pipeline
+- Containerizacao: Docker + Docker Compose
+- Medallion: bronze em JSON Lines, silver em parquet particionado por localizacao e gold agregado por tipo e local
+- Monitoramento: logs estruturados, relatorio JSON por `run_id`, checks de qualidade e proposta de alerting
+
 ## O que foi implementado
 
 - Ingestao da API `https://api.openbrewerydb.org/v1/breweries`
@@ -33,6 +43,21 @@ docker compose up --build
 
 Depois abre o dashboard em `http://localhost:8501`.
 O scheduler do Luigi fica em `http://localhost:8082`.
+O `spark-app` e um job batch: ele sobe, executa a pipeline e encerra com `exit code 0` quando termina.
+
+### Fluxo recomendado para avaliacao
+
+```bash
+docker compose up --build
+docker compose run --rm spark-app pytest
+```
+
+Ao final da execucao, os artefatos esperados ficam em:
+
+- `data/bronze/`
+- `data/silver/`
+- `data/gold/`
+- `data/monitoring/`
 
 ### Execucao local
 
@@ -82,6 +107,7 @@ streamlit run app/ui/streamlit_app.py
 - Deduplica por `id`
 - Normaliza campos textuais em lowercase
 - Persiste em parquet particionado por `country` e `state`
+- O campo `city` continua disponivel para analise e para a agregacao da camada gold
 
 ### Gold
 
@@ -117,8 +143,17 @@ Como eu expandiria isso em producao:
 - Para recorrencia em producao, eu agendaria a task com cron, GitHub Actions schedule, ECS Scheduled Task ou outro scheduler externo chamando o job batch
 - O `spark-app` permanece batch e encerra com `exit code 0` quando a execucao termina, o que facilita reuso em agendadores
 
-## Trade-offs
+## Decisoes e trade-offs
 
 - Foi usado parquet no silver e gold por simplicidade operacional e compatibilidade com Spark
 - O Luigi foi escolhido por ser leve para um case local, sem a sobrecarga de um Airflow
 - Os dados sao persistidos localmente em disco para facilitar reproducao do desafio
+- A silver ficou particionada por `country` e `state`, e nao por `city`, porque na pratica isso reduziu muito a quantidade de particoes pequenas e melhorou a escrita local do Spark em volume montado
+- O monitoramento implementado cobre observabilidade local e qualidade basica dos dados; integracoes reais com Slack, email ou ferramentas externas ficaram como proximo passo natural
+
+## Validacao executada
+
+- Pipeline validada via `docker compose up --build`
+- Dashboard validado em `http://localhost:8501`
+- Scheduler do Luigi validado em `http://localhost:8082`
+- Testes validados via `docker compose run --rm spark-app pytest`
