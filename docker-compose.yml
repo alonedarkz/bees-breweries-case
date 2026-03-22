@@ -22,6 +22,8 @@ services:
     working_dir: /app
     command: luigi --module app.orchestration.luigi_pipeline BreweryMedallionPipeline --scheduler-host luigi-scheduler --scheduler-port 8082
   streamlit-app:
+    profiles:
+      - optional
     build:
       context: .
       target: streamlit
