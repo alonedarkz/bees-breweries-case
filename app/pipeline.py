@@ -87,6 +87,11 @@ def persist_bronze(records: Iterable[dict[str, Any]], destination: Path) -> None
             file_obj.write("\n")
 
 
+def load_bronze_dataframe(bronze_path: Path) -> DataFrame:
+    spark = get_spark("bees-bronze-reader")
+    return spark.read.schema(RAW_SCHEMA).json(str(bronze_path))
+
+
 def validate_api_payload(records: list[dict[str, Any]]) -> None:
     if not records:
         raise PipelineQualityError("Open Brewery API returned zero records.")
