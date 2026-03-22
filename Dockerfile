@@ -33,6 +33,6 @@ COPY app ./app
 COPY requirements.txt .
 COPY README.md .
 
-RUN mkdir -p data/bronze data/silver data/gold
+RUN mkdir -p data/bronze data/silver data/gold data/monitoring
 
 CMD ["luigi", "--module", "app.orchestration.luigi_pipeline", "BreweryMedallionPipeline", "--local-scheduler"]
