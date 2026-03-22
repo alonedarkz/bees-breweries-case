@@ -1,8 +1,10 @@
 services:
   spark-app:
-    build: .
+    build:
+      context: .
+      target: app
     container_name: bees-spark-app
     volumes:
       - ./:/app
     working_dir: /app
-    command: python -m app.jobs.hello_spark
+    command: luigi --module app.orchestration.luigi_pipeline BreweryMedallionPipeline --local-scheduler
