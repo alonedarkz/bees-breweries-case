@@ -13,6 +13,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
+FROM builder AS streamlit-builder
+
+COPY requirements-streamlit.txt .
+RUN pip install --no-cache-dir -r requirements-streamlit.txt
+
 FROM python:3.11-slim AS app
 
 RUN apt-get update && apt-get install -y \
@@ -33,6 +38,15 @@ COPY app ./app
 COPY requirements.txt .
 COPY README.md .
 
-RUN mkdir -p data/bronze data/silver data/gold data/monitoring
+RUN mkdir -p data/bronze data/silver data/gold
 
 CMD ["luigi", "--module", "app.orchestration.luigi_pipeline", "BreweryMedallionPipeline", "--local-scheduler"]
+
+FROM app AS streamlit
+
+COPY --from=streamlit-builder /opt/venv /opt/venv
+COPY requirements-streamlit.txt .
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "app/ui/streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8501"]

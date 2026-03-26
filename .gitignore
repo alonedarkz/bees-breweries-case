@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Type check and lint caches
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Spark / local warehouse artifacts
+metastore_db/
+spark-warehouse/
+derby.log
+
+# Streamlit local config and cache
+.streamlit/secrets.toml
+
+# Environment files
+.env
+.env.*
+
+# Generated pipeline data
+data/bronze/
+data/silver/
+data/gold/
+data/monitoring/

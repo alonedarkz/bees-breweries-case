@@ -8,7 +8,7 @@ Projeto em Python + PySpark para consumir a API Open Brewery DB e persistir os d
 - Pipeline medallion com persistencia local em `data/`
 - Orquestracao com Luigi, retries de task e scheduler centralizado
 - Containerizacao com Docker
-- Monitoramento com logs estruturados e relatorio de execucao por `run_id`
+- Monitoramento com logs estruturados, relatorio de execucao por `run_id` e dashboard Streamlit
 - Testes unitarios para cliente da API e helpers da pipeline
 
 ## Estrutura
@@ -31,12 +31,20 @@ Projeto em Python + PySpark para consumir a API Open Brewery DB e persistir os d
 docker compose up --build
 ```
 
+Depois abre o dashboard em `http://localhost:8501`.
 O scheduler do Luigi fica em `http://localhost:8082`.
 
 ### Execucao local
 
+Instale as dependencias:
+
 ```bash
 pip install -r requirements.txt
+```
+
+Execute a pipeline com Luigi:
+
+```bash
 luigid --address 0.0.0.0 --port 8082
 luigi --module app.orchestration.luigi_pipeline BreweryMedallionPipeline --scheduler-host localhost --scheduler-port 8082
 ```
@@ -45,6 +53,20 @@ Ou rode direto com Python:
 
 ```bash
 python -m app.jobs.run_pipeline
+```
+
+### Streamlit local
+
+Instale as dependencias extras:
+
+```bash
+pip install -r requirements-streamlit.txt
+```
+
+Suba a interface:
+
+```bash
+streamlit run app/ui/streamlit_app.py
 ```
 
 ## Camadas da arquitetura

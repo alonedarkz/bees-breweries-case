@@ -21,3 +21,14 @@ services:
       - ./:/app
     working_dir: /app
     command: luigi --module app.orchestration.luigi_pipeline BreweryMedallionPipeline --scheduler-host luigi-scheduler --scheduler-port 8082
+  streamlit-app:
+    build:
+      context: .
+      target: streamlit
+    container_name: bees-streamlit-app
+    volumes:
+      - ./:/app
+    working_dir: /app
+    ports:
+      - "8501:8501"
+    command: streamlit run app/ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
